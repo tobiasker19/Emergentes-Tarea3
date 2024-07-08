@@ -56,10 +56,13 @@ def add_sensor_data():
     sensor = Sensor.query.filter_by(sensor_api_key=sensor_api_key).first()
     if not sensor:
         return abort(400, 'Invalid sensor API key')
-    
+
     sensor_data = data.get('json_data')
     for data_point in sensor_data:
-        new_data = SensorData(sensor_id=sensor.id, json_data=data_point)
+        timestamp = data_point.get('timestamp')
+        if timestamp is None:
+            return abort(400, 'Missing timestamp in sensor data')
+        new_data = SensorData(sensor_id=sensor.id, json_data=data_point, timestamp=timestamp)
         db.session.add(new_data)
     db.session.commit()
     return jsonify({'message': 'Data added successfully'}), 201
