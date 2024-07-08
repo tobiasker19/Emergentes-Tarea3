@@ -1,9 +1,8 @@
 from flask import Flask, request, jsonify, abort
 from models import db, Admin, Company, Location, Sensor, SensorData
 from config import Config
+from app import app  # Importar la app inicializada en app.py
 
-app = Flask(__name__)
-app.config.from_object(Config)
 db.init_app(app)
 
 @app.route('/companies', methods=['POST'])
