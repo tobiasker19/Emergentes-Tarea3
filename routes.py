@@ -5,6 +5,10 @@ from app import app  # Importar la app inicializada en app.py
 
 db.init_app(app)
 
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({'status': 'API is running'}), 200
+
 @app.route('/companies', methods=['POST'])
 def create_company():
     data = request.get_json()
