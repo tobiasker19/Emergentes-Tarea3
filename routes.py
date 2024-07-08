@@ -1,9 +1,6 @@
 from flask import Flask, request, jsonify, abort
 from models import db, Admin, Company, Location, Sensor, SensorData
-from config import Config
-from app import app  # Importar la app inicializada en app.py
-
-db.init_app(app)
+from app import app
 
 @app.route('/health', methods=['GET'])
 def health_check():
