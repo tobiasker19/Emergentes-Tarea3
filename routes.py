@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, abort
+from flask import request, jsonify, abort
 from models import db, Admin, Company, Location, Sensor, SensorData
 from app import app
 
@@ -77,6 +77,3 @@ def get_sensor_data():
     )
     results = query.all()
     return jsonify([data.json_data for data in results])
-
-if __name__ == '__main__':
-    app.run(debug=True)
