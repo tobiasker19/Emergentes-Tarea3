@@ -35,6 +35,46 @@ def create_location():
     db.session.commit()
     return jsonify({'message': 'Location created successfully'}), 201
 
+@app.route('/locations/<int:id>', methods=['GET'])
+def get_location(id):
+    location = Location.query.get_or_404(id)
+    return jsonify({
+        'company_id': location.company_id,
+        'location_name': location.location_name,
+        'location_country': location.location_country,
+        'location_city': location.location_city,
+        'location_meta': location.location_meta
+    })
+
+@app.route('/locations', methods=['GET'])
+def get_locations():
+    locations = Location.query.all()
+    return jsonify([{
+        'company_id': location.company_id,
+        'location_name': location.location_name,
+        'location_country': location.location_country,
+        'location_city': location.location_city,
+        'location_meta': location.location_meta
+    } for location in locations])
+
+@app.route('/locations/<int:id>', methods=['PUT'])
+def update_location(id):
+    data = request.get_json()
+    location = Location.query.get_or_404(id)
+    location.location_name = data['location_name']
+    location.location_country = data['location_country']
+    location.location_city = data['location_city']
+    location.location_meta = data['location_meta']
+    db.session.commit()
+    return jsonify({'message': 'Location updated successfully'})
+
+@app.route('/locations/<int:id>', methods=['DELETE'])
+def delete_location(id):
+    location = Location.query.get_or_404(id)
+    db.session.delete(location)
+    db.session.commit()
+    return jsonify({'message': 'Location deleted successfully'})
+
 @app.route('/sensors', methods=['POST'])
 def create_sensor():
     data = request.get_json()
@@ -48,6 +88,45 @@ def create_sensor():
     db.session.add(new_sensor)
     db.session.commit()
     return jsonify({'message': 'Sensor created successfully'}), 201
+
+@app.route('/sensors/<int:id>', methods=['GET'])
+def get_sensor(id):
+    sensor = Sensor.query.get_or_404(id)
+    return jsonify({
+        'location_id': sensor.location_id,
+        'sensor_name': sensor.sensor_name,
+        'sensor_category': sensor.sensor_category,
+        'sensor_meta': sensor.sensor_meta,
+        'sensor_api_key': sensor.sensor_api_key
+    })
+
+@app.route('/sensors', methods=['GET'])
+def get_sensors():
+    sensors = Sensor.query.all()
+    return jsonify([{
+        'location_id': sensor.location_id,
+        'sensor_name': sensor.sensor_name,
+        'sensor_category': sensor.sensor_category,
+        'sensor_meta': sensor.sensor_meta,
+        'sensor_api_key': sensor.sensor_api_key
+    } for sensor in sensors])
+
+@app.route('/sensors/<int:id>', methods=['PUT'])
+def update_sensor(id):
+    data = request.get_json()
+    sensor = Sensor.query.get_or_404(id)
+    sensor.sensor_name = data['sensor_name']
+    sensor.sensor_category = data['sensor_category']
+    sensor.sensor_meta = data['sensor_meta']
+    db.session.commit()
+    return jsonify({'message': 'Sensor updated successfully'})
+
+@app.route('/sensors/<int:id>', methods=['DELETE'])
+def delete_sensor(id):
+    sensor = Sensor.query.get_or_404(id)
+    db.session.delete(sensor)
+    db.session.commit()
+    return jsonify({'message': 'Sensor deleted successfully'})
 
 @app.route('/api/v1/sensor_data', methods=['POST'])
 def add_sensor_data():
