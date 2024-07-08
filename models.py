@@ -1,10 +1,4 @@
-from flask_sqlalchemy import SQLAlchemy
-from flask import Flask
-from config import Config
-
-app = Flask(__name__)
-app.config.from_object(Config)
-db = SQLAlchemy(app)
+from app import db
 
 class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
