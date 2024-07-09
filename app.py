@@ -6,11 +6,20 @@ app = Flask(__name__)
 app.config.from_object(Config)
 db.init_app(app)
 
+def admin_required(f):
+    def wrap(*args, **kwargs):
+        token = request.headers.get('Admin-Token')
+        if token != app.config['ADMIN_TOKEN']:
+            abort(403, 'Admin access required')
+        return f(*args, **kwargs)
+    return wrap
+
 @app.route('/health', methods=['GET'])
 def health_check():
     return jsonify({'status': 'API is running'}), 200
 
 @app.route('/companies', methods=['POST'])
+@admin_required
 def create_company():
     data = request.get_json()
     new_company = Company(
@@ -22,6 +31,7 @@ def create_company():
     return jsonify({'message': 'Company created successfully'}), 201
 
 @app.route('/locations', methods=['POST'])
+@admin_required
 def create_location():
     data = request.get_json()
     new_location = Location(
@@ -58,6 +68,7 @@ def get_locations():
     } for location in locations])
 
 @app.route('/locations/<int:id>', methods=['PUT'])
+@admin_required
 def update_location(id):
     data = request.get_json()
     location = Location.query.get_or_404(id)
@@ -69,6 +80,7 @@ def update_location(id):
     return jsonify({'message': 'Location updated successfully'})
 
 @app.route('/locations/<int:id>', methods=['DELETE'])
+@admin_required
 def delete_location(id):
     location = Location.query.get_or_404(id)
     db.session.delete(location)
@@ -76,6 +88,7 @@ def delete_location(id):
     return jsonify({'message': 'Location deleted successfully'})
 
 @app.route('/sensors', methods=['POST'])
+@admin_required
 def create_sensor():
     data = request.get_json()
     new_sensor = Sensor(
@@ -112,6 +125,7 @@ def get_sensors():
     } for sensor in sensors])
 
 @app.route('/sensors/<int:id>', methods=['PUT'])
+@admin_required
 def update_sensor(id):
     data = request.get_json()
     sensor = Sensor.query.get_or_404(id)
@@ -122,6 +136,7 @@ def update_sensor(id):
     return jsonify({'message': 'Sensor updated successfully'})
 
 @app.route('/sensors/<int:id>', methods=['DELETE'])
+@admin_required
 def delete_sensor(id):
     sensor = Sensor.query.get_or_404(id)
     db.session.delete(sensor)
