@@ -1,12 +1,14 @@
 from flask import Flask, request, jsonify, abort
 from config import Config
 from models import db, Admin, Company, Location, Sensor, SensorData
+from functools import wraps
 
 app = Flask(__name__)
 app.config.from_object(Config)
 db.init_app(app)
 
 def admin_required(f):
+    @wraps(f)
     def wrap(*args, **kwargs):
         token = request.headers.get('Admin-Token')
         if token != app.config['ADMIN_TOKEN']:
@@ -15,6 +17,7 @@ def admin_required(f):
     return wrap
 
 def company_api_key_required(f):
+    @wraps(f)
     def wrap(*args, **kwargs):
         company_api_key = request.headers.get('Company-API-Key')
         company = Company.query.filter_by(company_api_key=company_api_key).first()
