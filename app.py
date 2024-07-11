@@ -14,6 +14,15 @@ def admin_required(f):
         return f(*args, **kwargs)
     return wrap
 
+def company_api_key_required(f):
+    def wrap(*args, **kwargs):
+        company_api_key = request.headers.get('Company-API-Key')
+        company = Company.query.filter_by(company_api_key=company_api_key).first()
+        if not company:
+            abort(400, 'Invalid company API key')
+        return f(*args, **kwargs)
+    return wrap
+
 @app.route('/health', methods=['GET'])
 def health_check():
     return jsonify({'status': 'API is running'}), 200
@@ -32,6 +41,7 @@ def create_company():
 
 @app.route('/locations', methods=['POST'])
 @admin_required
+@company_api_key_required
 def create_location():
     data = request.get_json()
     new_location = Location(
@@ -46,6 +56,7 @@ def create_location():
     return jsonify({'message': 'Location created successfully'}), 201
 
 @app.route('/locations/<int:id>', methods=['GET'])
+@company_api_key_required
 def get_location(id):
     location = Location.query.get_or_404(id)
     return jsonify({
@@ -57,6 +68,7 @@ def get_location(id):
     })
 
 @app.route('/locations', methods=['GET'])
+@company_api_key_required
 def get_locations():
     locations = Location.query.all()
     return jsonify([{
@@ -69,6 +81,7 @@ def get_locations():
 
 @app.route('/locations/<int:id>', methods=['PUT'])
 @admin_required
+@company_api_key_required
 def update_location(id):
     data = request.get_json()
     location = Location.query.get_or_404(id)
@@ -81,6 +94,7 @@ def update_location(id):
 
 @app.route('/locations/<int:id>', methods=['DELETE'])
 @admin_required
+@company_api_key_required
 def delete_location(id):
     location = Location.query.get_or_404(id)
     db.session.delete(location)
@@ -89,6 +103,7 @@ def delete_location(id):
 
 @app.route('/sensors', methods=['POST'])
 @admin_required
+@company_api_key_required
 def create_sensor():
     data = request.get_json()
     new_sensor = Sensor(
@@ -103,6 +118,7 @@ def create_sensor():
     return jsonify({'message': 'Sensor created successfully'}), 201
 
 @app.route('/sensors/<int:id>', methods=['GET'])
+@company_api_key_required
 def get_sensor(id):
     sensor = Sensor.query.get_or_404(id)
     return jsonify({
@@ -114,6 +130,7 @@ def get_sensor(id):
     })
 
 @app.route('/sensors', methods=['GET'])
+@company_api_key_required
 def get_sensors():
     sensors = Sensor.query.all()
     return jsonify([{
@@ -126,6 +143,7 @@ def get_sensors():
 
 @app.route('/sensors/<int:id>', methods=['PUT'])
 @admin_required
+@company_api_key_required
 def update_sensor(id):
     data = request.get_json()
     sensor = Sensor.query.get_or_404(id)
@@ -137,6 +155,7 @@ def update_sensor(id):
 
 @app.route('/sensors/<int:id>', methods=['DELETE'])
 @admin_required
+@company_api_key_required
 def delete_sensor(id):
     sensor = Sensor.query.get_or_404(id)
     db.session.delete(sensor)
@@ -162,6 +181,7 @@ def add_sensor_data():
     return jsonify({'message': 'Data added successfully'}), 201
 
 @app.route('/api/v1/sensor_data', methods=['GET'])
+@company_api_key_required
 def get_sensor_data():
     company_api_key = request.args.get('company_api_key')
     from_epoch = request.args.get('from')
